@@ -9,6 +9,9 @@ namespace Mahjong.Engine
         private Wall _wall;
         private int _turnIndex; // 0..3
 
+        // 直前の捨て牌
+        public Tile LastDiscard { get; private set; }
+
         public TurnManager()
         {
             for (int i = 0; i < 4; i++)
@@ -21,6 +24,7 @@ namespace Mahjong.Engine
         {
             _wall = Wall.CreateShuffled();
             _turnIndex = 0;
+            LastDiscard = null;
 
             // 配牌：4人に13枚ずつ
             for (int r = 0; r < 13; r++)
@@ -67,6 +71,9 @@ namespace Mahjong.Engine
 
             var discard = p.Hand[discardIdx];
             p.Hand.RemoveAt(discardIdx);
+
+            // 直前の捨て牌を記録
+            LastDiscard = discard;
 
             Debug.Log($"[P{_turnIndex}] 打牌: {discard}");
 
