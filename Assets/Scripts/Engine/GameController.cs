@@ -17,6 +17,8 @@ public class GameController : MonoBehaviour
     public Transform tileButtonContainer; // 牌ボタンの親オブジェクト
     public GameObject tileButtonPrefab;   // 牌ボタンのプレハブ
     public Button tsumoButton;            // ツモボタン
+    public Button restartButton;          // リスタートボタン（終了時に表示）
+    public Button resetButton;            // リセットボタン（常に表示）
     public GameObject winPanel;           // アガリ表示パネル
     public TextMeshProUGUI winText;       // アガリ詳細テキスト
 
@@ -54,6 +56,19 @@ public class GameController : MonoBehaviour
         {
             tsumoButton.onClick.AddListener(OnTsumoClicked);
             tsumoButton.gameObject.SetActive(false);
+        }
+
+        // リスタートボタンのイベント設定（終了時のみ表示）
+        if (restartButton != null)
+        {
+            restartButton.onClick.AddListener(OnRestartClicked);
+            restartButton.gameObject.SetActive(false);  // 最初は非表示
+        }
+
+        // リセットボタンのイベント設定（常に表示）
+        if (resetButton != null)
+        {
+            resetButton.onClick.AddListener(OnRestartClicked);  // 同じ処理を実行
         }
 
         // アガリパネルを非表示
@@ -429,6 +444,12 @@ public class GameController : MonoBehaviour
         {
             shantenText.text = "ツモアガリ";
         }
+
+        // リスタートボタンを表示
+        if (restartButton != null)
+        {
+            restartButton.gameObject.SetActive(true);
+        }
     }
 
     /// <summary>
@@ -470,6 +491,54 @@ public class GameController : MonoBehaviour
         {
             turnText.text = "流局";
         }
+
+        // リスタートボタンを表示
+        if (restartButton != null)
+        {
+            restartButton.gameObject.SetActive(true);
+        }
+    }
+
+    /// <summary>
+    /// リスタートボタンがクリックされた
+    /// </summary>
+    public void OnRestartClicked()
+    {
+        Debug.Log("=== ゲームリスタート ===");
+
+        // リスタートボタンを非表示
+        if (restartButton != null)
+        {
+            restartButton.gameObject.SetActive(false);
+        }
+
+        // アガリパネルを非表示
+        if (winPanel != null)
+        {
+            winPanel.SetActive(false);
+        }
+
+        // 既存の牌ボタンを削除
+        foreach (var btn in _tileButtons)
+        {
+            Destroy(btn);
+        }
+        _tileButtons.Clear();
+
+        // 既存の捨て牌を削除
+        foreach (var tile in _discardTiles)
+        {
+            Destroy(tile);
+        }
+        _discardTiles.Clear();
+
+        // 新しいゲームを開始
+        _turn = new TurnManager();
+        _turn.StartNewHand();
+        _waitingForPlayerInput = false;
+        _canTsumo = false;
+
+        CheckTurn();
     }
 
     /// <summary>
